@@ -3,8 +3,8 @@ import datetime
 import json
 import sys
 import os
-
-
+from time import time
+ 
 def loadJson(Dir):
     """Json 파일에 저장된 데이터 불러오기"""
     with open(Dir, 'r') as file:
@@ -45,7 +45,6 @@ def download_file(url, filename):
     except Exception as e:
         print(f"Failed to download {filename}: {e}")
 
-
 def log(text):
     currDir = os.path.dirname(os.path.realpath(__file__))
     with open(f'{currDir}/log.txt', 'a') as file:
@@ -53,5 +52,11 @@ def log(text):
 
 def inputType(func):
     return func.__annotations__
+
+def checkTime(func, *params):
+    start = time()
+    output = func(*params)
+    return (time()-start, output)
+
 
 currDir = os.path.dirname(os.path.realpath(__file__))
