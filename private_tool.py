@@ -5,36 +5,35 @@ import json
 import sys
 import os
 
-def loadJson(dir :str) -> list:
-    """_summary_
+def loadJson(dir :str):
+    """Json 파일에서 데이터 로드
 
     Args:
-        dir (str): _description_
+        dir (str): 파일 경로
 
     Returns:
-        list: _description_
+        Any: Json 파일에 저장된 데이터
     """
-    """Json 파일에 저장된 데이터 불러오기"""
+    
     with open(dir, 'r') as file:
         ls = json.load(file)
     return ls
 
 def saveJson(dir :str, data) -> None:
-    """_summary_
+    """데이터를 Json 형태로 저장
 
     Args:
-        dir (str): _description_
-        data (_type_): _description_
+        dir (str): 파일 경로
+        data (_type_): 데이터
     """
-    # """데이터를 Json 파일에 저장하기"""
     with open(dir, 'w', encoding="utf-8") as file:
         json.dump(data, file, indent="\t")
 
 def createDirectory(directory :str) -> None:
-    """_summary_
+    """디렉토리 생성
 
     Args:
-        directory (str): _description_
+        directory (str): 생성하고자 하는 폴더 경로
     """
     try:
         if not os.path.exists(directory):
@@ -43,28 +42,27 @@ def createDirectory(directory :str) -> None:
         print("Error: Failed to create the directory.")
 
 def workingDirectory() -> str:
-    """_summary_
+    """현재 디렉토리 반환
+    exe 및 py 파일 지원
 
     Returns:
-        str: _description_
+        str: 경로
     """
     if getattr(sys, 'frozen', False):
-        #test.exe로 실행한 경우,test.exe를 보관한 디렉토리의 full path를 취득
         currDir = os.path.dirname(os.path.abspath(sys.executable))    
     else:
-        #python test.py로 실행한 경우,test.py를 보관한 디렉토리의 full path를 취득
         currDir = os.path.dirname(os.path.abspath(__file__))
     return currDir
 
-def filesInFolder(dir :str, extention=False) -> list[str]:
-    """_summary_
+def filesInFolder(dir :str, extention :str or bool=False) -> list[str]:
+    """경로 입력시 해당 폴더 내의 파일 및 폴더 반환
 
     Args:
-        dir (str): _description_
-        extention (bool, optional): _description_. Defaults to False.
+        dir (str): 경로
+        extention (str or bool, optional): 확장자. Defaults to False.
 
     Returns:
-        list[str]: _description_
+        list[str]: 폴더 내의 파일 및 폴더 명
     """
     if extention:
         return [file.replace(f".{extention}", "") for file in os.listdir(dir) if file.endswith(f".{extention}")]
@@ -72,11 +70,11 @@ def filesInFolder(dir :str, extention=False) -> list[str]:
         return [file for file in os.listdir(dir)]
 
 def download_file(url :str, filename :str) -> None:
-    """_summary_
+    """url을 통해 파일 저장
 
     Args:
-        url (str): _description_
-        filename (str): _description_
+        url (str): 파일 url
+        filename (str): 저장될 파일명
     """
     try:
         request.urlretrieve(url, filename)
@@ -85,31 +83,22 @@ def download_file(url :str, filename :str) -> None:
         print(f"Failed to download {filename}: {e}")
 
 def log(text :str) -> None:
-    """_summary_
+    """현재 디렉토리에 log.txt 파일 생성 및 로그 작성
+    현재 시간 - text
 
     Args:
-        text (str): _description_
+        text (str): 로그
     """
     currDir = os.path.dirname(os.path.realpath(__file__))
     with open(f'{currDir}/log.txt', 'a') as file:
         file.write(f"{datetime.datetime.now()} - {text}\n")
 
-def inputType(func) -> dict:
-    """_summary_
-
-    Args:
-        func (_type_): _description_
-
-    Returns:
-        dict: _description_
-    """
-    return func.__annotations__
-
 def checkTime(func, *params) -> float:
-    """_summary_
+    """함수 실행에 걸리는 시간 측정
 
     Args:
-        func (_type_): _description_
+        func (_type_): 함수
+        params (list): 함수 실행에 필요한 파라미터
 
     Returns:
         float: _description_
@@ -119,23 +108,23 @@ def checkTime(func, *params) -> float:
     return (time()-start, output)
 
 def parentDirectory(dir :str, separator :str="\\", n :int=1) -> str:
-    """_summary_
+    """입력된 디렉토리의 parent 반환
 
     Args:
-        dir (str): _description_
-        separator (str): _description_. Defaults to "\".
-        n (int): _description_. Defaults to 1.
+        dir (str): 경로
+        separator (str): 구분자. Defaults to "\".
+        n (int): parent 까지의 차수. Defaults to 1.
 
     Returns:
-        str: _description_
+        str: 부모 노드의 경로
     """
     return separator.join(dir.split(separator)[:-n])
 
 def writeRequirements(dir_to_code:str) -> None:
-    """_summary_
+    """현재 디렉토리에 requirements.txt 작성
 
     Args:
-        dir_to_code (str): _description_
+        dir_to_code (str): py 파일이 저장된 디렉토리
     """
     libs = set()
     dirs = filesInFolder(dir_to_code, "py")
