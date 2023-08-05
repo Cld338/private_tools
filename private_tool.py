@@ -1,29 +1,53 @@
-import urllib.request
+from time import time
+from urllib import request
 import datetime
 import json
 import sys
 import os
-from time import time
- 
-def loadJson(Dir):
+
+def loadJson(dir :str) -> list:
+    """_summary_
+
+    Args:
+        dir (str): _description_
+
+    Returns:
+        list: _description_
+    """
     """Json 파일에 저장된 데이터 불러오기"""
-    with open(Dir, 'r') as file:
+    with open(dir, 'r') as file:
         ls = json.load(file)
     return ls
 
-def saveJson(Dir, data):
-    """데이터를 Json 파일에 저장하기"""
-    with open(Dir, 'w', encoding="utf-8") as file:
+def saveJson(dir :str, data) -> None:
+    """_summary_
+
+    Args:
+        dir (str): _description_
+        data (_type_): _description_
+    """
+    # """데이터를 Json 파일에 저장하기"""
+    with open(dir, 'w', encoding="utf-8") as file:
         json.dump(data, file, indent="\t")
 
-def createDirectory(directory):
+def createDirectory(directory :str) -> None:
+    """_summary_
+
+    Args:
+        directory (str): _description_
+    """
     try:
         if not os.path.exists(directory):
             os.makedirs(directory)
     except OSError:
         print("Error: Failed to create the directory.")
 
-def workingDirectory():
+def workingDirectory() -> str:
+    """_summary_
+
+    Returns:
+        str: _description_
+    """
     if getattr(sys, 'frozen', False):
         #test.exe로 실행한 경우,test.exe를 보관한 디렉토리의 full path를 취득
         currDir = os.path.dirname(os.path.abspath(sys.executable))    
@@ -32,31 +56,102 @@ def workingDirectory():
         currDir = os.path.dirname(os.path.abspath(__file__))
     return currDir
 
-def filesInFolder(Dir, extention=0):
-    if extention:
-        return [file.replace(f".{extention}", "") for file in os.listdir(Dir) if file.endswith(f".{extention}")]
-    else:
-        return [file for file in os.listdir(Dir)]
+def filesInFolder(dir :str, extention=False) -> list[str]:
+    """_summary_
 
-def download_file(url, filename):
+    Args:
+        dir (str): _description_
+        extention (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        list[str]: _description_
+    """
+    if extention:
+        return [file.replace(f".{extention}", "") for file in os.listdir(dir) if file.endswith(f".{extention}")]
+    else:
+        return [file for file in os.listdir(dir)]
+
+def download_file(url :str, filename :str) -> None:
+    """_summary_
+
+    Args:
+        url (str): _description_
+        filename (str): _description_
+    """
     try:
-        urllib.request.urlretrieve(url, filename)
+        request.urlretrieve(url, filename)
         print(f"Downloaded: {filename}")
     except Exception as e:
         print(f"Failed to download {filename}: {e}")
 
-def log(text):
+def log(text :str) -> None:
+    """_summary_
+
+    Args:
+        text (str): _description_
+    """
     currDir = os.path.dirname(os.path.realpath(__file__))
     with open(f'{currDir}/log.txt', 'a') as file:
         file.write(f"{datetime.datetime.now()} - {text}\n")
 
-def inputType(func):
+def inputType(func) -> dict:
+    """_summary_
+
+    Args:
+        func (_type_): _description_
+
+    Returns:
+        dict: _description_
+    """
     return func.__annotations__
 
-def checkTime(func, *params):
+def checkTime(func, *params) -> float:
+    """_summary_
+
+    Args:
+        func (_type_): _description_
+
+    Returns:
+        float: _description_
+    """
     start = time()
     output = func(*params)
     return (time()-start, output)
 
+def parentDirectory(dir :str, separator :str="\\", n :int=1) -> str:
+    """_summary_
+
+    Args:
+        dir (str): _description_
+        separator (str): _description_. Defaults to "\".
+        n (int): _description_. Defaults to 1.
+
+    Returns:
+        str: _description_
+    """
+    return separator.join(dir.split(separator)[:-n])
+
+def writeRequirements(dir_to_code:str) -> None:
+    """_summary_
+
+    Args:
+        dir_to_code (str): _description_
+    """
+    libs = set()
+    dirs = filesInFolder(dir_to_code, "py")
+    for directory in dirs:
+        with open(dir_to_code + "/" + directory + ".py", "r", encoding="utf-8") as file:
+            txt = file.readlines()
+            for line in txt:
+                if "import" in line:
+                    lib = line.split()[1]
+                    if "." in lib:
+                        lib = lib.split(".")[0]
+                    libs.add(lib.lstrip().rstrip())
+    ls = [[i, os.popen(f"pip show {i}").readlines()] for i in libs]
+    versions = [f"{i[0]}=={j.split()[1]}" for i in ls for j in i[1] if "Version" in j]
+    with open(currDir + "/requirements.txt", "w", encoding="utf-8") as file:
+        for i in versions:
+            file.write(i+"\n")
 
 currDir = os.path.dirname(os.path.realpath(__file__))
