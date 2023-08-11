@@ -14,7 +14,6 @@ def loadJson(dir :str):
     Returns:
         Any: Json 파일에 저장된 데이터
     """
-    
     with open(dir, 'r') as file:
         ls = json.load(file)
     return ls
