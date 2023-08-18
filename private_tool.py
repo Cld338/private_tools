@@ -53,7 +53,7 @@ def workingDirectory() -> str:
         currDir = os.path.dirname(os.path.abspath(__file__))
     return currDir
 
-def filesInFolder(dir :str, extention :str or bool=False) -> list[str]:
+def filesInFolder(dir :str, extention :str or bool=False) -> list:
     """경로 입력시 해당 폴더 내의 파일 및 폴더 반환
 
     Args:
